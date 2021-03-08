@@ -1,0 +1,6 @@
+opencv-python
+tensorflow==1.15.0
+Keras==2.2.4
+plaidbench==0.7.0
+plaidml==0.7.0
+plaidml-keras==0.7.0

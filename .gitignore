@@ -1,0 +1,9 @@
+/test_images/
+/test_tfrecords/
+/train_images/
+/train_tfrecords/
+/val_images/
+train.csv
+sample_submission.csv
+label_num_to_disease_map.json
+/.idea/
