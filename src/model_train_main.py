@@ -18,10 +18,11 @@ def setup_arguments():
     parser.add_argument("--val_images", required=False, dest="val_images", type=int, default=400)
     parser.add_argument("--model", required=False, dest="model", type=str, default="cnn")
     parser.add_argument("-s", required=False, dest="summarize", action='store_true', default=False)
+    parser.add_argument("--normalize", required=False, dest="n", action="store_true", default=False)
     return parser
 
 
-def read_arguments() -> Tuple[str, str, bool, int, int, Tuple[int, int], int, int, str, bool]:
+def read_arguments() -> Tuple[str, str, bool, int, int, Tuple[int, int], int, int, str, bool, bool]:
     args = sys.argv[1:]
     arg_parser = setup_arguments()
     args = arg_parser.parse_args(args)
@@ -37,12 +38,14 @@ def read_arguments() -> Tuple[str, str, bool, int, int, Tuple[int, int], int, in
     val_images = args.val_images
     model = args.model
     summarize = args.summarize
-    return model_path, out_path, create_new, epochs, batches, input_shape, train_images, val_images, model, summarize
+    normalize = args.n
+    return model_path, out_path, create_new, epochs, batches, \
+           input_shape, train_images, val_images, model, summarize, normalize
 
 
 if __name__ == '__main__':
     model_path, out_path, create_new, epochs, batches, \
-        input_shape, train_images, val_images, model, summarize = read_arguments()
+        input_shape, train_images, val_images, model, summarize, normalize = read_arguments()
     input_shape = (input_shape[0], input_shape[1], 3)
     if create_new:
         # As opencv2 considers the number of rows to be the second element of a shape tuple,
@@ -54,5 +57,7 @@ if __name__ == '__main__':
         model.summary()
         exit(0)
     model_training_utils.train_model(model, batches, epochs, input_shape[:2],
-                                     train_images_per_batch=train_images, val_images_per_batch=val_images)
+                                     train_images_per_batch=train_images,
+                                     val_images_per_batch=val_images,
+                                     normalize_images=normalize)
     model_training_utils.save_model(model, out_path)

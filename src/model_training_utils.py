@@ -20,7 +20,8 @@ def create_model(model_id: str, input_shape: Tuple[int, int, int]) -> keras.Mode
     return __model_string_mapping[model_id](input_shape)
 
 
-def custom_validation(model: keras.Model, image_size: Tuple[int, int], val_images_per_batch: int = 400) -> float:
+def custom_validation(model: keras.Model, image_size: Tuple[int, int], normalize_images,
+                      val_images_per_batch: int = 400) -> float:
     val_image_files = os.listdir("val_images")
     curr_index = 0
     num_correct = 0
@@ -29,7 +30,7 @@ def custom_validation(model: keras.Model, image_size: Tuple[int, int], val_image
     for _ in tqdm.tqdm(range(num_iterations)):
         batch_image_paths = val_image_files[curr_index: curr_index + val_images_per_batch]
         batch_image_paths = ["val_images" + os.path.sep + x for x in batch_image_paths]
-        batch_images, batch_labels = image_utils.load_specified_batch(batch_image_paths, image_size)
+        batch_images, batch_labels = image_utils.load_specified_batch(batch_image_paths, image_size, normalize_images)
         predicted_labels = model.predict(batch_images)
         for index, predicted in enumerate(predicted_labels):
             predicted_label = np.argmax(predicted)
@@ -40,11 +41,12 @@ def custom_validation(model: keras.Model, image_size: Tuple[int, int], val_image
     return num_correct / len(val_image_files)
 
 
-def train_model(model: keras.Model, num_batches: int, epochs_per_batch: int, image_size: Tuple[int, int],
-                train_images_per_batch: int = 1000, val_images_per_batch: int = 400) -> None:
+def train_model(model: keras.Model, num_batches: int, epochs_per_batch: int,
+                image_size: Tuple[int, int], train_images_per_batch: int = 1000,
+                val_images_per_batch: int = 400, normalize_images: bool = False) -> None:
     for _ in range(num_batches):
-        train_images, train_labels = image_utils.load_batch("train_images", train_images_per_batch, image_size)
-        # val_images, val_labels = image_utils.load_batch("val_images", val_images_per_batch, image_size)
+        train_images, train_labels = image_utils.load_batch("train_images", train_images_per_batch,
+                                                            image_size, normalize_images)
         for _ in range(epochs_per_batch):
             model.fit(train_images, train_labels, epochs=1)
             print(f"Calculated val_acc: {custom_validation(model, image_size, val_images_per_batch)}")
