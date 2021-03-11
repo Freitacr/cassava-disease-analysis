@@ -1,4 +1,5 @@
-opencv-python
+opencv-python==4.5.1.48
+tqdm==4.56.0
 tensorflow==1.15.0
 Keras==2.2.4
 plaidbench==0.7.0

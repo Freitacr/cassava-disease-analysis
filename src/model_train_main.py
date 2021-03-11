@@ -1,45 +1,8 @@
-from typing import Tuple, Dict, Callable, Optional
+from typing import Tuple
 import argparse
-import os
 import sys
 
-import keras
-
-import cnn_model
-import non_standard_models
-import image_utils
-
-
-__model_string_mapping: Dict[str, Callable[[Tuple[int, int, int], Optional[bool]], keras.Model]] = {
-    "cnn": cnn_model.create_model,
-    "reimage": non_standard_models.create_reimaging_model,
-    "recurrent": non_standard_models.create_recurrent_model
-}
-
-
-def create_model(model_id: str, input_shape: Tuple[int, int, int]) -> keras.Model:
-    return __model_string_mapping[model_id](input_shape)
-
-
-def train_model(model: keras.Model, num_batches: int, epochs_per_batch: int, image_size: Tuple[int, int],
-                train_images_per_batch: int = 1000, val_images_per_batch: int = 400) -> None:
-    for _ in range(num_batches):
-        train_images, train_labels = image_utils.load_batch("train_images", train_images_per_batch, image_size)
-        val_images, val_labels = image_utils.load_batch("val_images", val_images_per_batch, image_size)
-        model.fit(train_images, train_labels, epochs=epochs_per_batch,
-                  validation_data=(val_images, val_labels))
-
-
-def save_model(model: keras.Model, file_path: str):
-    directory, file = os.path.split(file_path)
-    if not os.path.exists(directory):
-        os.mkdir(directory)
-    model.save(file_path)
-
-
-def load_model(file_path: str) -> keras.Model:
-    # let keras raise the error if the file doesn't exist.
-    return keras.models.load_model(file_path)
+import model_training_utils
 
 
 def setup_arguments():
@@ -84,12 +47,12 @@ if __name__ == '__main__':
     if create_new:
         # As opencv2 considers the number of rows to be the second element of a shape tuple,
         #   this is unfortunately necessary.
-        model = create_model(model, (input_shape[1], input_shape[0], input_shape[2]))
+        model = model_training_utils.create_model(model, (input_shape[1], input_shape[0], input_shape[2]))
     else:
-        model = load_model(model_path)
+        model = model_training_utils.load_model(model_path)
     if summarize:
         model.summary()
         exit(0)
-    train_model(model, batches, epochs, input_shape[:2],
-                train_images_per_batch=train_images, val_images_per_batch=val_images)
-    save_model(model, out_path)
+    model_training_utils.train_model(model, batches, epochs, input_shape[:2],
+                                     train_images_per_batch=train_images, val_images_per_batch=val_images)
+    model_training_utils.save_model(model, out_path)
