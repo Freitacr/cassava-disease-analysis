@@ -2,7 +2,7 @@ from typing import Tuple
 import argparse
 import sys
 
-import model_training_utils
+import model_utils
 
 
 def setup_arguments():
@@ -50,14 +50,14 @@ if __name__ == '__main__':
     if create_new:
         # As opencv2 considers the number of rows to be the second element of a shape tuple,
         #   this is unfortunately necessary.
-        model = model_training_utils.create_model(model, (input_shape[1], input_shape[0], input_shape[2]))
+        model = model_utils.create_model(model, (input_shape[1], input_shape[0], input_shape[2]))
     else:
-        model = model_training_utils.load_model(model_path)
+        model = model_utils.load_model(model_path)
     if summarize:
         model.summary()
         exit(0)
-    model_training_utils.train_model(model, batches, epochs, input_shape[:2],
-                                     train_images_per_batch=train_images,
-                                     val_images_per_batch=val_images,
-                                     normalize_images=normalize)
-    model_training_utils.save_model(model, out_path)
+    model_utils.train_model(model, batches, epochs, input_shape[:2],
+                            train_images_per_batch=train_images,
+                            val_images_per_batch=val_images,
+                            normalize_images=normalize)
+    model_utils.save_model(model, out_path)

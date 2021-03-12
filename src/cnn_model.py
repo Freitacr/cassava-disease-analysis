@@ -7,12 +7,12 @@ import keras.metrics
 
 def create_model(input_shape: Tuple[int, int, int], output_summary: bool = False) -> keras.Sequential:
     model = keras.Sequential()
-    model.add(keras.layers.Conv2D(8, 3, input_shape=input_shape, activation='relu'))
+    model.add(keras.layers.Conv2D(16, 3, input_shape=input_shape, activation='relu'))
     model.add(keras.layers.MaxPool2D())
-    model.add(keras.layers.Conv2D(16, 2, activation='relu'))
+    model.add(keras.layers.Conv2D(32, 2, activation='relu'))
     model.add(keras.layers.MaxPool2D(pool_size=(4, 4)))
     model.add(keras.layers.Dropout(.5))
-    model.add(keras.layers.Conv2D(32, 1, activation='relu'))
+    model.add(keras.layers.Conv2D(64, 1, activation='relu'))
     model.add(keras.layers.MaxPool2D(pool_size=(8, 8)))
     model.add(keras.layers.Flatten())
     model.add(keras.layers.Dense(64))
