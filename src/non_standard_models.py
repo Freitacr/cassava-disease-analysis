@@ -57,3 +57,43 @@ def create_recurrent_model(input_shape: Tuple[int, int, int], output_summary: bo
     if output_summary:
         model.summary()
     return model
+
+
+def create_granular_model(input_shape: Tuple[int, int, int], output_summary: bool = False) -> keras.Model:
+    input_layer = keras.Input(input_shape)
+
+    conv_layer_args = [
+        [(4, 6), (8, 6)],
+        [(8, 6), (16, 6)],
+        [(16, 6), (32, 6)]
+    ]
+
+    granular_layer_chains = []
+
+    for granular_args in conv_layer_args:
+        layer = keras.layers.Conv2D(*granular_args[0], activation='relu')(input_layer)
+        layer = keras.layers.MaxPool2D()(layer)
+        layer = keras.layers.Dropout(.5)(layer)
+        layer = keras.layers.Conv2D(*granular_args[1], activation='tanh')(layer)
+        layer = keras.layers.MaxPool2D()(layer)
+        layer = keras.layers.Dropout(.5)(layer)
+        layer = keras.layers.Flatten()(layer)
+        layer = keras.layers.Dense(32)(layer)
+        layer = keras.layers.Dense(32)(layer)
+        granular_layer_chains.append(layer)
+
+    layer = keras.layers.Concatenate()([granular_layer_chains[0], granular_layer_chains[1]])
+    layer = keras.layers.Concatenate()([layer, granular_layer_chains[2]])
+    layer = keras.layers.Dense(32)(layer)
+    layer = keras.layers.Dense(128)(layer)
+    layer = keras.layers.Dense(64)(layer)
+    layer = keras.layers.Dense(5, activation='softmax')(layer)
+    model = keras.Model(inputs=input_layer, outputs=layer)
+    model.compile(
+        keras.optimizers.rmsprop(),
+        loss='categorical_crossentropy',
+        metrics=["acc", keras.metrics.categorical_accuracy]
+    )
+    if output_summary:
+        model.summary()
+    return model

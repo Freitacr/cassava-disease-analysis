@@ -12,7 +12,8 @@ import non_standard_models
 __model_string_mapping: Dict[str, Callable[[Tuple[int, int, int], Optional[bool]], keras.Model]] = {
     "cnn": cnn_model.create_model,
     "reimage": non_standard_models.create_reimaging_model,
-    "recurrent": non_standard_models.create_recurrent_model
+    "recurrent": non_standard_models.create_recurrent_model,
+    "granular": non_standard_models.create_granular_model
 }
 
 
