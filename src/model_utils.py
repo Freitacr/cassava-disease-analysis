@@ -66,8 +66,12 @@ def train_model(model: keras.Model, num_batches: int, epochs_per_batch: int,
     for _ in range(num_batches):
         train_images, train_labels = image_utils.load_batch("train_images", train_images_per_batch,
                                                             image_size, normalize_images)
+        sample_weights = np.ones(len(train_images))
+        for i in range(len(sample_weights)):
+            if train_labels[i][4] == 1:
+                sample_weights[i] *= .5
         for _ in range(epochs_per_batch):
-            model.fit(train_images, train_labels, epochs=1)
+            model.fit(train_images, train_labels, sample_weight=sample_weights, epochs=1)
             prediction_stats = {}
             accuracy = custom_accuracy(model, image_size,
                                        val_images_per_batch, prediction_stats_storage=prediction_stats)
