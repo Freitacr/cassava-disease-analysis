@@ -8,3 +8,4 @@ sample_submission.csv
 label_num_to_disease_map.json
 /.idea/
 /out_models/
+/out_logs/
